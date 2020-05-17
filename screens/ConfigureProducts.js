@@ -8,70 +8,91 @@ import {RectButton, ScrollView} from 'react-native-gesture-handler';
 import {useState} from "react";
 import {Button, CheckBox, ListItem, Text} from "react-native-elements";
 import moment from 'moment';
-import {getData as getProductList} from "../constants/Catlog";
+import {getData as getProductList, updateData} from "../constants/Catlog";
 import {useEffect} from "react";
 
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import DatePicker from 'react-native-datepicker'
 
-export default function LinksScreen({navigation}) {
+export default function ConfigureProducts({navigation}) {
 
-    const [date, setDate] = useState(new Date());
-    const [maxStartTime, setMaxStartTime] = useState(new Date( new Date().getTime() + 60*60000));
-    const [endDate, setEndDate] = useState(new Date());
-    const [startTime, setStartTime] = useState('');
-    const [endTime, setEndTime] = useState('');
-    const [show, setShow] = useState(false);
-    const [showEndTime, setShowEndTime] = useState(false);
-    const [mode, setMode] = useState('time');
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+    const [maxStartTime, setMaxStartTime] = useState('');
+
     const [dateSlot, setDateSlot ] = useState(0);
     const [showDateModal, setShowModal] = useState(false);
     const [products, setProducts] = useState({});
 
     const changeStartTime = (event, date) => {
-        console.log('time',moment(date).format('HH:MM A'));
-        setStartTime(moment(date).format('HH:MM A'));
-        setDate(moment(date));
-        setShow(false);
+        setStartDate(moment(date).format('hh:mm A'));
     };
 
     const changeEndTime = (event, date) => {
-
-        setEndTime(moment(date).format('HH:MM A'));
-        setEndDate(new Date(date));
-        setShowEndTime(false);
+        setEndDate(moment(date).format('hh:mm A'));
     };
 
-    const showStartTimePicker = () => {
-        setMode('time');
-        setShow(true);
-    };
+    const updateProductInConfig = (productId, checked) => {
+        let productList = JSON.parse(JSON.stringify(products));
 
-    const showEndTimePicker = () => {
-        setMode('time');
-        setShowEndTime(true);
-    };
-
-    const getMaxEndTime = () => {
-
-    };
-
-    const getMinEndTime = () => {
-
-    };
-
-    const getMaxStartTime = () => {
-        if(!endTime){
-            console.log('max start time:', moment().subtract(-1));
-            return moment().subtract(-1);
+        if(checked){
+            productList[productId]['start_time'] = startDate;
+            productList[productId]['expiry_time'] = endDate;
+            productList[productId]['repeat_slot'] = dateSlot;
+            productList[productId]['checked'] = checked;
         }
         else{
-            let maxTime = moment(endDate).subtract(60000 * 60);
-            console.log('max time: ', maxTime);
-            return maxTime;
+            productList[productId]['start_time'] = '';
+            productList[productId]['expiry_time'] = '';
+            productList[productId]['repeat_slot'] = '';
+            productList[productId]['checked'] = checked;
         }
+
+        setProducts(productList);
+
     };
 
-    const getMinStartTime = () => {
+    const verifyProducts = (products) => {
+        let productsList = JSON.parse(JSON.stringify(products));
+
+        return new Promise(resolve => {
+            if(productsList){
+                for(let id in productsList){
+                    if(productsList.hasOwnProperty(id)){
+                        if(productsList[id] && productsList[id].checked){
+                            productsList[id].start_time = startDate;
+                            productsList[id].expiry_time = endDate;
+                            productsList[id].repeat_slot = dateSlot;
+                        }
+                        else{
+                            productsList[id].start_time = '';
+                            productsList[id].expiry_time = '';
+                            productsList[id].repeat_slot = '';
+                        }
+                    }
+                }
+            }
+
+            resolve(productsList);
+        })
+
+
+
+    };
+
+    const saveConfig = async () => {
+
+        try{
+
+            let productList = await verifyProducts(products);
+
+            await updateData('Products', productList);
+
+            setTimeout(() => { navigation.navigate('Home');}, 400)
+
+        }
+        catch(err){
+            console.log(err);
+        }
 
     };
 
@@ -86,13 +107,9 @@ export default function LinksScreen({navigation}) {
 
     const Check = (props) => {
 
-        const [checked, setChecked] = useState(false);
-
         const handleCheckBox = () => {
-            setChecked((prevValue) => !prevValue);
-            setTimeout(() => {
-                props.onClick(props.id);
-            }, 400)
+            let checked = !props.checked;
+            props.onClick(props.id, checked);
         };
 
         return (
@@ -100,7 +117,7 @@ export default function LinksScreen({navigation}) {
                 checkedIcon='dot-circle-o'
                 uncheckedIcon='circle-o'
                 onPress={() => handleCheckBox()}
-                checked={checked}
+                checked={props.checked}
             />
         )
     };
@@ -113,9 +130,10 @@ export default function LinksScreen({navigation}) {
         setShowModal(false);
     };
 
-    const CloseModal = () => {
-        setShowModal(false);
-    };
+    useEffect(() => {
+        let time = moment().subtract(60*60000).format('YYYY-MM-DD HH:MM:SS');
+        setMaxStartTime(time);
+    }, []);
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
@@ -139,68 +157,60 @@ export default function LinksScreen({navigation}) {
                 <View style={{paddingBottom: 16, width: '50%'}}>
                     <View style={{flexDirection: 'row'}}>
                         <Text h5 style={{paddingBottom: 16}}>Start time</Text>
-                        <Text h5 style={{paddingLeft: 8, fontSize: 16, color: '#333', fontWeight: 'bold'}}>{startTime}</Text>
                     </View>
                     <View style={{paddingRight: 16}}>
-                        <Button title={`Pick start time`}
-                                onPress={showStartTimePicker}/>
+                        <DatePicker
+                            mode="time"
+                            timeZoneOffsetInMinutes={330}
+                            date={startDate}
+                            format={`hh:mm A`}
+                            placeholder={`Pick start time`}
+                            display={`clock`}
+                            onDateChange={changeStartTime}
+                            showIcon={false}
+                            maxDate={maxStartTime}
+                        />
                     </View>
                 </View>
                 <View style={{paddingBottom: 16, width: '50%'}}>
                     <View style={{flexDirection: 'row'}}>
                         <Text h5 style={{paddingBottom: 16}}>End time</Text>
-                        <Text h5 style={{paddingLeft: 8, fontSize: 16, color: '#333', fontWeight: 'bold'}}>{endTime}</Text>
                     </View>
                     <View style={{paddingRight: 16}}>
-                        <Button title={`Pick end time`} disabled={!startTime}
-                                onPress={showEndTimePicker}/>
+                        <DatePicker
+                            timeZoneOffsetInMinutes={330}
+                            testID="endTimePicker"
+                            mode="time"
+                            display={`clock`}
+                            placeholder={`Pick end time`}
+                            showIcon={false}
+                            format={`hh:mm A`}
+                            date={endDate}
+                            onDateChange={changeEndTime}
+                        />
                     </View>
                 </View>
             </View>
-
-            <View>
-                {
-                    <DateTimePickerModal
-                        isVisible={show}
-                        mode="time"
-                        display={`clock`}
-                        onConfirm={()=> console.log(3)}
-                        onChange={changeStartTime}
-                        // maximumDate={maxStartTime}
-                        onCancel={changeStartTime}
-                    />
-                }
-                {
-                    showEndTime &&
-                    <DateTimePickerModal
-                        testID="endTimePicker"
-                        isVisible={show}
-                        mode="time"
-                        display={`clock`}
-                        onConfirm={()=> console.log(3)}
-                        onChange={changeEndTime}
-                        // maximumDate={maxStartTime}
-                        onCancel={changeEndTime}
-                    />
-                }
-            </View>
             <View style={{padding: 16}}>
-                <Button title={`Select Date`}  onPress={() => setShowModal(true)}/>
+                <Button title={`Select slot`}  onPress={() => setShowModal(true)}/>
             </View>
-            <ScrollView style={{height: '70%'}}>
+            <ScrollView style={{height: '60%'}}>
 
                 {
                     products && Object.keys(products).length > 0 && Object.keys(products).map((l, i) => (
                         <ListItem
                             key={products[l].id}
                             title={products[l].name}
-                            rightElement={<Check onClick={() => console.log(2)} id={products[l].id}/>}
+                            rightElement={<Check onClick={updateProductInConfig} checked={products[l]['checked'] || false} id={products[l].id}/>}
                             subtitle={products[l].price}
                             bottomDivider
                         />
                     ))
                 }
             </ScrollView>
+            <View style={{padding: 16}}>
+                <Button title={`Save config`} onPress={() => saveConfig()}/>
+            </View>
             <Modal
                 animationType="slide"
                 transparent={true}
@@ -212,21 +222,21 @@ export default function LinksScreen({navigation}) {
                             <ListItem
                                 style={style.listStyle}
                                 title={`Daily`}
-                                rightElement={<Check dateSlot={dateSlot} onClick={() => handleSlotRepeat(0)}/>}
+                                rightElement={<Check checked={dateSlot === 0} onClick={() => handleSlotRepeat(0)}/>}
                                 subtitle={``}
                                 bottomDivider
                             />
                             <ListItem
                                 style={style.listStyle}
                                 title={`Weekend`}
-                                rightElement={<Check dateSlot={dateSlot} onClick={() => handleSlotRepeat(1)}/>}
+                                rightElement={<Check checked={dateSlot === 1} onClick={() => handleSlotRepeat(1)}/>}
                                 subtitle={``}
                                 bottomDivider
                             />
                             <ListItem
                                 style={style.listStyle}
                                 title={`Weekdays`}
-                                rightElement={<Check dateSlot={dateSlot} onClick={() => handleSlotRepeat(2)}/>}
+                                rightElement={<Check checked={dateSlot === 2} onClick={() => handleSlotRepeat(2)}/>}
                                 subtitle={``}
                                 bottomDivider
                             />
@@ -273,7 +283,6 @@ const style = StyleSheet.create({
         backgroundColor: "white",
         borderRadius: 0,
         padding: 12,
-        // alignItems: "center",
         shadowColor: "#000",
         shadowOffset: {
             width: 0,

@@ -1,26 +1,25 @@
+
+require('moment-timezone');
+
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { MonoText } from '../components/StyledText';
+import {Button, ListItem} from 'react-native-elements'
 
-import NikeImage from '../assets/images/nike1.jpeg'
-
-import {ListItem, Icon, Avatar} from 'react-native-elements'
-
-import {Product} from '../constants/Products'
 import {updateData as UpdateProduct, getData as getProductList} from '../constants/Catlog';
 import {useEffect} from "react";
 import {useState} from "react";
-import {useFocusEffect} from "@react-navigation/core";
 
-export default function HomeScreen() {
+import moment from "moment";
+
+export default function HomeScreen({navigation}) {
 
   const [products, setProducts] = useState({});
 
   async function addToCart (product) {
-    console.log(product);
+    // console.log(product);
     try {
       let tempProduct = {
         [product.id]: product
@@ -32,44 +31,137 @@ export default function HomeScreen() {
   }
 
 
+  function validateProductAsPerSlot(product) {
+
+    // console.log('repeat slot', product['repeat_slot']);
+    // console.log('expiry time:', moment.tz(product['expiry_time'],'Asia/Kolkata'));
+    // console.log('start time', product['start_time']);
+
+    if(product['repeat_slot'] === 0){ // daily
+
+      // Expiry check
+      let start = moment(product['start_time'], 'hh:mma');
+      let end = moment(product['expiry_time'], 'hh:mma');
+      if( typeof product['expiry_time'] !== 'undefined' && moment().isBetween(start, end)){
+        return true;
+      }
+      else{
+        return false;
+      }
+
+    }
+    else if(product['repeat_slot'] === 1){ // weekend
+      console.log(55);
+      let start = moment(product['start_time'], 'hh:mma');
+      let end = moment(product['expiry_time'], 'hh:mma');
+      let today = moment().format('dddd');
+      if(typeof product['expiry_time'] !== 'undefined' && moment().isBetween(start, end) && today.match(/\b((Sun|Sat(u))(day)?)\b/g).length > 0) {
+        console.log(44);
+        return true;
+      }
+      else{
+        return false;
+      }
+
+    }
+    else if(product['repeat_slot'] === 2){ // weekdays
+      console.log(33);
+      let start = moment(product['start_time'], 'hh:mma');
+      let end = moment(product['expiry_time'], 'hh:mma');
+      let today = moment().format('dddd');
+
+      console.log('today', today);
+      if(typeof product['expiry_time'] !== 'undefined' && moment().isBetween(start, end) && today.match(/\b((Mon|Tues|Wed(nes)?|Thur(s)?|Fri)(day)?)\b/g).length > 0) {
+        console.log(44);
+        return true;
+      }
+      else{
+        return false;
+      }
+    }
+    else{
+      // console.log(3);
+      return false;
+    }
+
+
+  }
+
+  function filterProducts(products){
+
+
+    // console.log('products', products);
+    if(products && Object.keys(products).length > 0 ){
+      console.log('1');
+      let List = Object.keys(products).map((l, i) => {
+
+        // Expiry time check
+        if(validateProductAsPerSlot(products[l])){
+          console.log(4);
+          return(
+              <ListItem
+                  key={products[l].id}
+                  // leftAvatar={{title: l.avatar_title, rounded: true, titleStyle: styles.avatarTitleStyle, avatarStyle:styles.avatarStyle }}
+                  title={products[l].name}
+                  titleStyle={{
+                    fontWeight: 'bold',
+                    fontSize:18,
+                  }}
+                  rightElement={() => <Button type={`clear`} onPress={() => addToCart( products[l])} title={`Add to cart`}/>}
+                  // rightTitle={`Add to cart`}
+                  subtitle={`Rs ${products[l].price}`}
+                  subtitleStyle={{
+                    color: '#333'
+                  }}
+                  bottomDivider
+              />
+          )
+        }
+        else {
+          return null;
+        }
+      });
+
+      // console.log('List', List);
+      return List;
+    }
+    else{
+      // console.log(5);
+      return <Text>HI</Text>;
+    }
+  }
+
   async function getProducts (){
 
     try {
           let products = await getProductList('Products');
-          console.log('products', products);
+          // console.log('products', products);
           setProducts(products);
     } catch (err) {
-
+        console.log('err', err);
     }
   }
 
+  useEffect(() => { getProducts();}, []);
 
-  useFocusEffect(
-      React.useCallback(() => {
-        getProducts();
 
-        return () => {
-        //   Unmount
-        }
-      }, [])
-  );
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+
+      getProducts();
+      // Screen was focused
+      // Do something
+    });
+
+    return unsubscribe;
+
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-          {
-            products && Object.keys(products).length > 0 && Object.keys(products).map((l, i) => (
-            <ListItem
-              key={products[l].id}
-              // leftAvatar={{title: l.avatar_title, rounded: true, titleStyle: styles.avatarTitleStyle, avatarStyle:styles.avatarStyle }}
-              title={products[l].name}
-              rightIcon={{name: 'shopping-cart', onPress: () => addToCart( products[l]) }}
-              // rightTitle={`Add to cart`}
-              subtitle={products[l].price}
-              bottomDivider
-            />
-          ))
-        }
+            { filterProducts(products) || <Text>HI</Text>}
       </ScrollView>
     </View>
   );

@@ -97,7 +97,7 @@ export default function CartScreen({navigation, route}) {
                   cartItems && Object.keys(cartItems).length > 0 ?
                   <View style={{padding: 16,}}>
                       <Button title={`Checkout`} raised
-                              onPress={() => navigation.navigate('Checkout', {screen: 'Checkout'})}/>
+                              onPress={() => navigation.navigate('Invoice')}/>
                   </View>
                       :
                   <View style={{padding: 16}}>
@@ -115,14 +115,15 @@ export default function CartScreen({navigation, route}) {
                                       title={cartItems[l].name}
                                       rightIcon={{
                                           name: 'delete',
-                                          onPress: () => deleteItemFormCart(cartItems[l].id)
+                                          size: 32,
+                                          onPress: () => deleteItemFormCart(cartItems[l].id),
+                                          containerStyle: { paddingRight: 24, padding: 8}
                                       }}
                                       rightTitleStyle={{
                                           marginHorizontal: 16,
                                           color: '#333',
                                           fontSize: 14
                                       }}
-                                      rightTitle={`Qty : ${cartItems[l]['qty'] || '3'}`}
                                       subtitle={l.price}
                                       bottomDivider
                                   />

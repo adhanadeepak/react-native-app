@@ -6,6 +6,7 @@ import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import useCachedResources from './hooks/useCachedResources';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import CheckoutScreen from './screens/CheckoutScreen';
+import ThankYouScreen from './screens/ThankYouScreen';
 import LinkingConfiguration from './navigation/LinkingConfiguration';
 import {useEffect} from "react";
 
@@ -21,7 +22,6 @@ export default function App(props) {
   const updateCatalog = async (products) => {
     try {
         await addProducts('Products', Products);
-        // console.log('product added', products);
 
     } catch (err) {
 
@@ -44,7 +44,8 @@ export default function App(props) {
         <NavigationContainer linking={LinkingConfiguration}>
           <Stack.Navigator>
             <Stack.Screen name="Root" component={BottomTabNavigator} />
-            <Stack.Screen name={`Checkout`} component={CheckoutScreen}/>
+            <Stack.Screen name={`Invoice`} component={CheckoutScreen}/>
+            <Stack.Screen name={`ThankYou`} component={ThankYouScreen}/>
           </Stack.Navigator>
         </NavigationContainer>
       </View>
