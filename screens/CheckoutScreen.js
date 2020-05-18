@@ -36,10 +36,7 @@ function InvoiceScreen({navigation}) {
                 total += parseFloat(items[key].price);
             });
 
-            let taxAmount = Math.round((total * 0.19 * 100))/100;
-            total = Math.round((taxAmount + total * 100))/100;
-            setTax(taxAmount);
-            setTotal(total);
+
             return total;
         }
         else{
@@ -50,7 +47,10 @@ function InvoiceScreen({navigation}) {
     const getAmount = (items) => {
 
         let total = getCartTotal(items);
-        // console.log('check', total > 500);
+        let taxAmount = Math.round((total * 0.19 * 100))/100;
+        setTax(taxAmount);
+        total = total + taxAmount;
+        setTotal(total + taxAmount);
          if(total < 100){
               setSellerAmount(Math.round((total * 0.70) * 100)/100);
               setWebsiteAmount(Math.round((total * 0.20) * 100)/100);
