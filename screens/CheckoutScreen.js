@@ -4,6 +4,7 @@ import {View, StyleSheet, ScrollView} from "react-native";
 import {Button, Divider, ListItem, Text} from "react-native-elements";
 import {useFocusEffect} from "@react-navigation/core";
 import {getData as getCart} from "../constants/Catlog";
+import {removeData} from "../constants/Catlog";
 
 function InvoiceScreen({navigation}) {
 
@@ -32,11 +33,11 @@ function InvoiceScreen({navigation}) {
         if(Object.keys(items).length > 0){
 
             Object.keys(items).map(key => {
-                total += parseInt(items[key].price);
+                total += parseFloat(items[key].price);
             });
 
-            let taxAmount = total * 0.19;
-            total = taxAmount + total;
+            let taxAmount = Math.round((total * 0.19 * 100))/100;
+            total = Math.round((taxAmount + total * 100))/100;
             setTax(taxAmount);
             setTotal(total);
             return total;
@@ -68,6 +69,22 @@ function InvoiceScreen({navigation}) {
              setWebsiteAmount(Math.round((total * 0.33)*100)/100);
              setCharityAmount(Math.round((total * 0.33)*100)/100);
          }
+    };
+
+    const pay = async () => {
+
+
+        try{
+
+            await removeData('Cart');
+            navigation.navigate('ThankYou');
+        }
+        catch(err){
+            console.log('payment error', err);
+        }
+
+
+
     };
 
 
@@ -193,8 +210,8 @@ function InvoiceScreen({navigation}) {
                     />
                 </View>
             </View>
-            <View style={{padding: 16, width: '100%'}}>
-                <Button title={`Pay`} onPress={() => navigation.navigate('ThankYou')}/>
+            <View style={{paddingVertical: 16, width: '100%'}}>
+                <Button title={`Pay`} type={`solid`} onPress={() => pay()}/>
             </View>
         </View>
     );

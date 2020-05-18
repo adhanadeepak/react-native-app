@@ -7,7 +7,7 @@ import CartScreen from '../screens/CartScreen';
 import ConfigureProducts from 'screens/ConfigureProducts';
 
 const BottomTab = createBottomTabNavigator();
-const INITIAL_ROUTE_NAME = 'Home';
+const INITIAL_ROUTE_NAME = 'Links';
 
 export default function BottomTabNavigator({ navigation, route }) {
   // Set the header title on the parent stack navigator depending on the

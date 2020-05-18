@@ -72,10 +72,10 @@ export default function CartScreen({navigation, route}) {
               {
                   getCartTotal() !== '0' &&
                   <View>
-                      <ListItem title={`Total amount:`} rightTitle={getCartTotal()}
+                      <ListItem title={`Total amount:`} rightTitleStyle={{fontWeight: 'bold'}} rightTitle={`Rs ${getCartTotal()}`}
                                 bottomDivider/>
                       <View>
-                          <ListItem title={`Products in cart`} bottomDivider/>
+                          <ListItem titleStyle={{fontWeight: 'bold', fontSize: 16}} title={`Products in cart`} bottomDivider/>
                       </View>
                   </View>
               }
@@ -116,7 +116,7 @@ export default function CartScreen({navigation, route}) {
                               ))}
 
                               <View style={{padding: 16,}}>
-                                  <Button title={`Checkout`} raised/>
+                                  <Button title={`Checkout`} raised onPress={() => navigation.navigate('Invoice')}/>
                               </View>
                           </View>
                           :

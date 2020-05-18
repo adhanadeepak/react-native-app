@@ -36,8 +36,8 @@ export default function HomeScreen({navigation}) {
     if(product['repeat_slot'] === 0){ // daily
 
       // Expiry check
-      let start = moment(product['start_time'], 'hh:mma');
-      let end = moment(product['expiry_time'], 'hh:mma');
+      let start = moment(product['start_time'], 'hh:mm A');
+      let end = moment(product['expiry_time'], 'hh:mm A');
       if( typeof product['expiry_time'] !== 'undefined' && moment().isBetween(start, end)){
         return true;
       }
@@ -47,8 +47,8 @@ export default function HomeScreen({navigation}) {
 
     }
     else if(product['repeat_slot'] === 1){ // weekend
-      let start = moment(product['start_time'], 'hh:mma');
-      let end = moment(product['expiry_time'], 'hh:mma');
+      let start = moment(product['start_time'], 'hh:mm A');
+      let end = moment(product['expiry_time'], 'hh:mm A');
       let today = moment().format('dddd');
       if(typeof product['expiry_time'] !== 'undefined' && moment().isBetween(start, end) && today.match(/\b((Sun|Sat(u))(day)?)\b/g).length > 0) {
         return true;
@@ -59,9 +59,14 @@ export default function HomeScreen({navigation}) {
 
     }
     else if(product['repeat_slot'] === 2){ // weekdays
-      let start = moment(product['start_time'], 'hh:mma');
-      let end = moment(product['expiry_time'], 'hh:mma');
+      let start = moment(product['start_time'], 'hh:mm A');
+      let end = moment(product['expiry_time'], 'hh:mm A');
       let today = moment().format('dddd');
+
+      console.log('time',moment().format('hh:mm A'));
+
+      // console.log('Match', today.match(/\b((Mon|Tues|Wed(nes)?|Thur(s)?|Fri)(day)?)\b/g));
+      console.log('check', moment().isBetween(start, end));
 
       if(typeof product['expiry_time'] !== 'undefined' && moment().isBetween(start, end) && today.match(/\b((Mon|Tues|Wed(nes)?|Thur(s)?|Fri)(day)?)\b/g).length > 0) {
         return true;
@@ -120,6 +125,7 @@ export default function HomeScreen({navigation}) {
 
     try {
           let products = await getProductList('Products');
+          console.log('products home screen : ', products);
           setProducts(products);
     } catch (err) {
         console.log('err', err);

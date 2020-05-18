@@ -12,9 +12,9 @@
     "icon": "./assets/images/logo.png",
     "scheme": "myapp",
     "splash": {
-      "image": "./assets/images/splash1.png",
+      "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#888888"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -24,6 +24,10 @@
     ],
     "ios": {
       "supportsTablet": true
+    },
+    "android": {
+      "package": "com.adhanadeepak.shoppingCart",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
