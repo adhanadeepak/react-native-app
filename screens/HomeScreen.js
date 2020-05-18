@@ -33,10 +33,6 @@ export default function HomeScreen({navigation}) {
 
   function validateProductAsPerSlot(product) {
 
-    // console.log('repeat slot', product['repeat_slot']);
-    // console.log('expiry time:', moment.tz(product['expiry_time'],'Asia/Kolkata'));
-    // console.log('start time', product['start_time']);
-
     if(product['repeat_slot'] === 0){ // daily
 
       // Expiry check
@@ -51,12 +47,10 @@ export default function HomeScreen({navigation}) {
 
     }
     else if(product['repeat_slot'] === 1){ // weekend
-      console.log(55);
       let start = moment(product['start_time'], 'hh:mma');
       let end = moment(product['expiry_time'], 'hh:mma');
       let today = moment().format('dddd');
       if(typeof product['expiry_time'] !== 'undefined' && moment().isBetween(start, end) && today.match(/\b((Sun|Sat(u))(day)?)\b/g).length > 0) {
-        console.log(44);
         return true;
       }
       else{
@@ -65,14 +59,11 @@ export default function HomeScreen({navigation}) {
 
     }
     else if(product['repeat_slot'] === 2){ // weekdays
-      console.log(33);
       let start = moment(product['start_time'], 'hh:mma');
       let end = moment(product['expiry_time'], 'hh:mma');
       let today = moment().format('dddd');
 
-      console.log('today', today);
       if(typeof product['expiry_time'] !== 'undefined' && moment().isBetween(start, end) && today.match(/\b((Mon|Tues|Wed(nes)?|Thur(s)?|Fri)(day)?)\b/g).length > 0) {
-        console.log(44);
         return true;
       }
       else{
@@ -80,7 +71,6 @@ export default function HomeScreen({navigation}) {
       }
     }
     else{
-      // console.log(3);
       return false;
     }
 
@@ -90,14 +80,11 @@ export default function HomeScreen({navigation}) {
   function filterProducts(products){
 
 
-    // console.log('products', products);
     if(products && Object.keys(products).length > 0 ){
-      console.log('1');
       let List = Object.keys(products).map((l, i) => {
 
         // Expiry time check
         if(validateProductAsPerSlot(products[l])){
-          console.log(4);
           return(
               <ListItem
                   key={products[l].id}
@@ -122,11 +109,9 @@ export default function HomeScreen({navigation}) {
         }
       });
 
-      // console.log('List', List);
       return List;
     }
     else{
-      // console.log(5);
       return <Text>HI</Text>;
     }
   }
@@ -135,7 +120,6 @@ export default function HomeScreen({navigation}) {
 
     try {
           let products = await getProductList('Products');
-          // console.log('products', products);
           setProducts(products);
     } catch (err) {
         console.log('err', err);

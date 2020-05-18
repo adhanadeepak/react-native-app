@@ -1,27 +1,13 @@
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {  StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { MonoText } from '../components/StyledText';
 import {Button, ButtonGroup, ListItem} from "react-native-elements";
-import {Product} from "../constants/Products";
-import {useEffect} from "react";
 import {useState} from "react";
 
-import {getData as getCart, addData as removeItem, removeData} from "../constants/Catlog";
+import {getData as getCart, addData as removeItem} from "../constants/Catlog";
 import {useFocusEffect} from "@react-navigation/core";
-
-const ProductUpdateButton = () => {
-    return (
-        <ButtonGroup
-            onPress={() => console.log(1)}
-            selectedIndex={1}
-            buttons={['Hello', 'world', 'button']}
-            containerStyle={{height: 20}}
-        />
-    )
-};
 
 export default function CartScreen({navigation, route}) {
 

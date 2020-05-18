@@ -49,21 +49,21 @@ function InvoiceScreen({navigation}) {
     const getAmount = (items) => {
 
         let total = getCartTotal(items);
-        console.log('check', total > 500);
+        // console.log('check', total > 500);
          if(total < 100){
-              setSellerAmount(total * 0.70);
-              setWebsiteAmount(total * 0.20);
-              setCharityAmount(total * 0.10);
+              setSellerAmount(Math.round((total * 0.70) * 100)/100);
+              setWebsiteAmount(Math.round((total * 0.20) * 100)/100);
+              setCharityAmount(Math.round((total * 0.10) * 100 )/100);
          }
          else if(total > 100  && total < 500){
-             console.log('seller', total * 0.65);
-             setSellerAmount(total * 0.65);
-             setWebsiteAmount(total * 0.20);
-             setCharityAmount(total * 0.15);
+             // console.log('seller', total * 0.65);
+             setSellerAmount(Math.round((total * 0.65)*100)/100);
+             setWebsiteAmount(Math.round((total * 0.20)*100)/100);
+             setCharityAmount(Math.round((total * 0.15) * 100)/100);
          }
          else if(total > 500){
              console.log(1);
-             console.log('seller', total * 0.33);
+             // console.log('seller', total * 0.33);
              setSellerAmount(Math.round((total * 0.33 * 100))/100);
              setWebsiteAmount(Math.round((total * 0.33)*100)/100);
              setCharityAmount(Math.round((total * 0.33)*100)/100);
